@@ -2,6 +2,7 @@
 
 namespace Nfe204\Command;
 
+use Solarium\Client;
 use Solarium\QueryType\Select\Query\Query;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -9,6 +10,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SolrExportCommand extends Command
 {
+    protected $client;
+    protected $config = array();
+
     public function configure()
     {
         $this->setName('nfe204:solr:export');
@@ -21,18 +25,41 @@ class SolrExportCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $client = new \Solarium\Client($this->config['solarium']);
+        $this->client = new \Solarium\Client($this->config['solarium']);
 
-        $query = $client->createQuery($client::QUERY_SELECT);
+        $cursor = '*';
+        $nextCursor = null;
+        $i = 0;
+        $rows = 1000;
+
+        do {
+            $nextCursor = $this->fetch($cursor, $rows);
+
+            $i += $rows;
+            echo $i . PHP_EOL;
+            sleep(1);
+        } while ($nextCursor != $cursor && ($cursor = $nextCursor) && $i < 8000);
+    }
+
+    private function fetch($cursor = '*', $rows)
+    {
+        /**
+         * @var Query $query
+         */
+        $query = $this->client->createQuery(Client::QUERY_SELECT);
+
         $query
-            ->addParam('cursorMark', 'AoEub2ZmZXIxMDAwMTIyMTM=')
-            ->addSort('id', Query::SORT_ASC)
-        ;
+            ->setQuery('shop_id:25672')
+            ->setRows($rows)
+            ->addParam('cursorMark', $cursor)
+            ->addSort('id', Query::SORT_ASC);
 
-        $resultset = $client->execute($query);
-        print_r($resultset->getData()['nextCursorMark']);
+        $resultset = $this->client->execute($query);
+
         foreach ($resultset as $document) {
             echo json_encode($document->getFields()) . PHP_EOL;
         }
+
+        return $resultset->getData()['nextCursorMark'];
     }
 }
