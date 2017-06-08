@@ -1,0 +1,32 @@
+{
+    "name": "mvanmeerbeck/nfe204",
+    "type": "project",
+    "require": {
+        "symfony/console": "^3.3",
+        "incenteev/composer-parameter-handler": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Nfe204\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Maxime Vanmeerbeck",
+            "email": "mvanmeerbeck@shopbot-inc.com"
+        }
+    ],
+    "scripts": {
+        "post-install-cmd": [
+            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
+        ],
+        "post-update-cmd": [
+            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
+        ]
+    },
+    "extra": {
+        "incenteev-parameters": {
+            "file": "app/config/parameters.yml"
+        }
+    }
+}
