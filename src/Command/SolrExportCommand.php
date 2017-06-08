@@ -8,8 +8,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SolrExportCommand extends Command
 {
-
-
     public function configure()
     {
         $this->setName('nfe204:solr:export');
@@ -22,6 +20,10 @@ class SolrExportCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $client = new \Solarium\Client($this->config['solarium']);
 
+        $query = $client->createQuery($client::QUERY_SELECT);
+
+        $resultset = $client->execute($query);
     }
 }

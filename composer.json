@@ -3,7 +3,8 @@
     "type": "project",
     "require": {
         "symfony/console": "^3.3",
-        "incenteev/composer-parameter-handler": "^2.1"
+        "incenteev/composer-parameter-handler": "^2.1",
+        "solarium/solarium": "^3.8"
     },
     "autoload": {
         "psr-4": {

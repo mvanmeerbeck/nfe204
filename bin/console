@@ -1,6 +1,5 @@
 #!/usr/bin/env php
 <?php
-// application.php
 
 require __DIR__.'/../vendor/autoload.php';
 
@@ -11,7 +10,7 @@ $config = \Symfony\Component\Yaml\Yaml::parse(file_get_contents('app/config/para
 $application = new Application();
 
 $command = new \Nfe204\Command\SolrExportCommand();
-$command->setConfig($config);
+$command->setConfig($config['parameters']);
 
 $application->add($command);
 
