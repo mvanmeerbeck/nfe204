@@ -27,21 +27,10 @@ class SolrExportCommand extends Command
     {
         $this->client = new \Solarium\Client($this->config['solarium']);
 
-        $cursor = '*';
-        $nextCursor = null;
-        $i = 0;
-        $rows = 1000;
-
-        do {
-            $nextCursor = $this->fetch($cursor, $rows);
-
-            $i += $rows;
-            echo $i . PHP_EOL;
-            sleep(1);
-        } while ($nextCursor != $cursor && ($cursor = $nextCursor) && $i < 8000);
+        $this->fetch();
     }
 
-    private function fetch($cursor = '*', $rows)
+    private function fetch($cursor = '*', $rows = 1000)
     {
         /**
          * @var Query $query
@@ -49,6 +38,18 @@ class SolrExportCommand extends Command
         $query = $this->client->createQuery(Client::QUERY_SELECT);
 
         $query
+            ->setFields([
+                'id', 'type',
+                'offer_id', 'offer_brand_name', 'offer_brand_id', 'offer_name', 'offer_price', 'offer_price_regular', 'offer_category_name', 'description',
+                'brand_id', 'brand_name',
+                'shop_id', 'shop_name',
+                'category_hierarchy_ids', 'category_hierarchy_names', 'category_id', 'category_name',
+                'score_popularity'
+            ])
+            ->addFilterQuery([
+                'key' => 'type',
+                'query' => 'type:offer'
+            ])
             ->setQuery('shop_id:25672')
             ->setRows($rows)
             ->addParam('cursorMark', $cursor)
@@ -60,6 +61,8 @@ class SolrExportCommand extends Command
             echo json_encode($document->getFields()) . PHP_EOL;
         }
 
-        return $resultset->getData()['nextCursorMark'];
+        if ($cursor !== $resultset->getData()['nextCursorMark']) {
+            $this->fetch($resultset->getData()['nextCursorMark']);
+        }
     }
 }

@@ -6,3 +6,4 @@ parameters:
                 port: 8983
                 path: /solr/
                 core: webp_shopbot.en_CA
+                timeout: 60
