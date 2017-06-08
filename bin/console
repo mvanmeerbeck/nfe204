@@ -6,8 +6,13 @@ require __DIR__.'/../vendor/autoload.php';
 
 use Symfony\Component\Console\Application;
 
+$config = \Symfony\Component\Yaml\Yaml::parse(file_get_contents('app/config/parameters.yml'));
+
 $application = new Application();
 
-$application->add(new \Nfe204\Command\SolrExportCommand());
+$command = new \Nfe204\Command\SolrExportCommand();
+$command->setConfig($config);
+
+$application->add($command);
 
 $application->run();
