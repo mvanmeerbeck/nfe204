@@ -56,5 +56,7 @@ class EsImportCommand extends Command
 
             $i++;
         }
+
+        $this->client->bulk($documents);
     }
 }
