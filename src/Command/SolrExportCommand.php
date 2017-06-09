@@ -21,7 +21,8 @@ class SolrExportCommand extends Command
     {
         $this
             ->setName('solr:export')
-            ->addArgument('type', InputArgument::REQUIRED);
+            ->addArgument('type', InputArgument::REQUIRED)
+        ;
     }
 
     public function setConfig(array $config)
@@ -81,13 +82,17 @@ class SolrExportCommand extends Command
         }
 
         $resultset = $this->client->execute($query);
+        $nextCursor = $resultset->getData()['nextCursorMark'];
 
         foreach ($resultset as $document) {
             echo json_encode($document->getFields()) . PHP_EOL;
         }
 
-        if ($cursor !== $resultset->getData()['nextCursorMark']) {
-            $this->fetch($type, $resultset->getData()['nextCursorMark']);
+        unset($resultset);
+        unset($query);
+
+        if ($cursor !== $nextCursor) {
+            $this->fetch($type, $nextCursor);
         }
     }
 }
