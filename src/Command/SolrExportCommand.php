@@ -36,7 +36,7 @@ class SolrExportCommand extends Command
         $this->fetch($input->getArgument('type'));
     }
 
-    private function fetch($type, $cursor = '*', $rows = 10000)
+    private function fetch($type, $cursor = '*', $rows = 100000)
     {
         /**
          * @var Query $query
