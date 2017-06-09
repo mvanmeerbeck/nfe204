@@ -5,6 +5,7 @@ namespace Nfe204\Command;
 use Solarium\Client;
 use Solarium\QueryType\Select\Query\Query;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -13,9 +14,14 @@ class SolrExportCommand extends Command
     protected $client;
     protected $config = array();
 
+    CONST TYPE_OFFER = 'offer';
+    CONST TYPE_PRODUCT = 'product';
+
     public function configure()
     {
-        $this->setName('nfe204:solr:export');
+        $this
+            ->setName('solr:export')
+            ->addArgument('type', InputArgument::REQUIRED);
     }
 
     public function setConfig(array $config)
@@ -27,33 +33,52 @@ class SolrExportCommand extends Command
     {
         $this->client = new \Solarium\Client($this->config['solarium']);
 
-        $this->fetch();
+        $this->fetch($input->getArgument('type'));
     }
 
-    private function fetch($cursor = '*', $rows = 1000)
+    private function fetch($type, $cursor = '*', $rows = 10000)
     {
         /**
          * @var Query $query
          */
         $query = $this->client->createQuery(Client::QUERY_SELECT);
 
-        $query
-            ->setFields([
-                'id', 'type',
-                'offer_id', 'offer_brand_name', 'offer_brand_id', 'offer_name', 'offer_price', 'offer_price_regular', 'offer_category_name', 'description',
-                'brand_id', 'brand_name',
-                'shop_id', 'shop_name',
-                'category_hierarchy_ids', 'category_hierarchy_names', 'category_id', 'category_name',
-                'score_popularity'
-            ])
-            ->addFilterQuery([
-                'key' => 'type',
-                'query' => 'type:offer'
-            ])
-            ->setQuery('shop_id:25672')
-            ->setRows($rows)
-            ->addParam('cursorMark', $cursor)
-            ->addSort('id', Query::SORT_ASC);
+        if (self::TYPE_OFFER === $type) {
+            $query
+                ->setFields([
+                    'id',
+                    'offer_id', 'offer_brand_name', 'offer_brand_id', 'offer_name', 'offer_price', 'offer_price_regular', 'offer_category_name', 'offer_url', 'description',
+                    'brand_id', 'brand_name',
+                    'shop_id', 'shop_name',
+                    'category_hierarchy_ids', 'category_hierarchy_names', 'category_id', 'category_name',
+                    'score_popularity'
+                ])
+                ->addFilterQuery([
+                    'key' => 'type',
+                    'query' => 'type:' . self::TYPE_OFFER
+                ])
+                ->setRows($rows)
+                ->addParam('cursorMark', $cursor)
+                ->addSort('id', Query::SORT_ASC);
+        }
+
+        if (self::TYPE_PRODUCT === $type) {
+            $query
+                ->setFields([
+                    'id',
+                    'product_id', 'product_name', 'product_price_min', 'product_price_max',
+                    'brand_id', 'brand_name',
+                    'category_hierarchy_ids', 'category_hierarchy_names', 'category_id', 'category_name',
+                    'score_popularity'
+                ])
+                ->addFilterQuery([
+                    'key' => 'type',
+                    'query' => 'type:' . self::TYPE_PRODUCT
+                ])
+                ->setRows($rows)
+                ->addParam('cursorMark', $cursor)
+                ->addSort('id', Query::SORT_ASC);
+        }
 
         $resultset = $this->client->execute($query);
 
@@ -62,7 +87,7 @@ class SolrExportCommand extends Command
         }
 
         if ($cursor !== $resultset->getData()['nextCursorMark']) {
-            $this->fetch($resultset->getData()['nextCursorMark']);
+            $this->fetch($type, $resultset->getData()['nextCursorMark']);
         }
     }
 }

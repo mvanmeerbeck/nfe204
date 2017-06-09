@@ -1,4 +1,6 @@
 parameters:
+    elasticsearch:
+        - localhost:9200
     solarium:
         endpoint:
             localhost:

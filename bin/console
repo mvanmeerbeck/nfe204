@@ -14,4 +14,9 @@ $command->setConfig($config['parameters']);
 
 $application->add($command);
 
+$command = new \Nfe204\Command\EsImportCommand();
+$command->setConfig($config['parameters']);
+
+$application->add($command);
+
 $application->run();
