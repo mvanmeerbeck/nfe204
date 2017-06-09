@@ -21,8 +21,7 @@ class SolrExportCommand extends Command
     {
         $this
             ->setName('solr:export')
-            ->addArgument('type', InputArgument::REQUIRED)
-        ;
+            ->addArgument('type', InputArgument::REQUIRED);
     }
 
     public function setConfig(array $config)

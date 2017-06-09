@@ -16,7 +16,9 @@ class EsImportCommand extends Command
     public function configure()
     {
         $this
-            ->setName('es:import');
+            ->setName('es:import')
+            ->addArgument('type', InputArgument::REQUIRED)
+            ->addArgument('file', InputArgument::REQUIRED);
     }
 
     public function setConfig(array $config)
@@ -30,8 +32,29 @@ class EsImportCommand extends Command
             ->setHosts($this->config['elasticsearch'])
             ->build();
 
-        $this->client->search([
+        $handle = fopen($input->getArgument('file'), 'r');
 
-        ]);
+        $i = 0;
+
+        $documents = ['body' => []];
+        while ($line = fgets($handle, 1024)) {
+            $documents['body'][] = [
+                'index' => [
+                    '_index' => 'product',
+                    '_type' => 'document',
+                    '_id' => $i
+                ]
+            ];
+
+            $documents['body'][] = json_decode($line, true);
+
+            if (0 === $i % 1000) {
+                $this->client->bulk($documents);
+
+                $documents = ['body' => []];
+            }
+
+            $i++;
+        }
     }
 }
