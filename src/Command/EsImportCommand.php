@@ -32,12 +32,29 @@ class EsImportCommand extends Command
             ->setHosts($this->config['elasticsearch'])
             ->build();
 
+        $index = [
+            'index' => $input->getArgument('type')
+        ];
+
+        if ($this->client->indices()->exists($index)
+        ) {
+            $this->client->indices()->delete($index);
+        }
+
+        $index['body']['mappings'] = json_decode(file_get_contents(sprintf(
+            '%s/../../app/Resources/mappings/%s.json',
+            __DIR__,
+            $input->getArgument('type')
+        )));
+
+        $this->client->indices()->create($index);
+
         $handle = fopen($input->getArgument('file'), 'r');
 
         $i = 0;
 
         $documents = ['body' => []];
-        while ($line = fgets($handle, 2048)) {
+        while ($line = fgets($handle, 100000)) {
             $document = json_decode($line, true);
 
             $documents['body'][] = [
@@ -52,7 +69,7 @@ class EsImportCommand extends Command
 
             $i++;
 
-            if (0 === $i % 1000) {
+            if (0 === $i % 10000) {
                 $this->bulk($documents);
 
                 $documents = ['body' => []];

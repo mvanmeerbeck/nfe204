@@ -1,0 +1,58 @@
+{
+    "document": {
+        "properties": {
+            "brand_id": {"type": "long"},
+            "brand_name": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "category_hierarchy_ids": {"type": "long"},
+            "category_hierarchy_names": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "category_id": {"type": "long"},
+            "category_name": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "id": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "product_id": {"type": "long"},
+            "product_name": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "product_price_max": {"type": "long"},
+            "product_price_min": {"type": "long"},
+            "score_popularity": {"type": "long"}
+        }
+    }
+}
