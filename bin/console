@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-require __DIR__.'/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 use Symfony\Component\Console\Application;
 
@@ -9,14 +9,15 @@ $config = \Symfony\Component\Yaml\Yaml::parse(file_get_contents('app/config/para
 
 $application = new Application();
 
-$command = new \Nfe204\Command\SolrExportCommand();
-$command->setConfig($config['parameters']);
+$commands = [
+    new \Nfe204\Command\SolrExportCommand(),
+    new \Nfe204\Command\EsImportCommand(),
+    new \Nfe204\Command\ClassifyCommand(),
+];
 
-$application->add($command);
-
-$command = new \Nfe204\Command\EsImportCommand();
-$command->setConfig($config['parameters']);
-
-$application->add($command);
+foreach ($commands as $command) {
+    $command->setConfig($config['parameters']);
+    $application->add($command);
+}
 
 $application->run();
