@@ -48,6 +48,7 @@ class SolrExportCommand extends Command
                 ->setFields([
                     'id',
                     'offer_id', 'offer_brand_name', 'offer_brand_id', 'offer_name', 'offer_price', 'offer_price_regular', 'offer_category_name', 'offer_url', 'description',
+                    'product_id', 'product_name',
                     'brand_id', 'brand_name',
                     'shop_id', 'shop_name',
                     'category_hierarchy_ids', 'category_hierarchy_names', 'category_id', 'category_name',
