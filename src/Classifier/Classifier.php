@@ -28,6 +28,6 @@ class Classifier extends AbstractClassifier implements ClassifierInterface
             ]
         ]);
 
-        return $offer['category_id'] === $result['hits']['hits'][0]['_source']['category_id'];
+        $this->evaluation->addPrediction($result['hits']['hits'][0]['_source']['category_id'], $offer['category_id']);
     }
 }

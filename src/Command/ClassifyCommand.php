@@ -5,6 +5,7 @@ namespace Nfe204\Command;
 use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Nfe204\Classifier\Classifier;
+use Nfe204\Evaluation;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -37,7 +38,7 @@ class ClassifyCommand extends Command
 
         $result = $this->client->search([
             'index' => 'offer',
-            'size' => 1000,
+            'size' => 10,
             'scroll' => '1m',
             'body' => [
                 'query' => [
@@ -50,25 +51,16 @@ class ClassifyCommand extends Command
             ]
         ]);
 
-        $this->classifier = new Classifier($this->client);
+        $this->classifier = new Classifier($this->client, new Evaluation());
 
-        $this->scroll($output, $result, [
-            'positive' => 0,
-            'total' => 0,
-        ]);
+        $this->scroll($output, $result);
     }
 
-    private function scroll(OutputInterface $output, $result, array $predictions)
+    private function scroll(OutputInterface $output, $result)
     {
         foreach ($result['hits']['hits'] as $i => $offer) {
-            if (true === $this->classifier->predict($offer['_source'])) {
-                $predictions['positive']++;
-            }
-
-            $predictions['total']++;
+            $this->classifier->predict($offer['_source']);
         }
-
-        $output->writeln(round($predictions['positive'] / $predictions['total'] * 100) . '%');
 
         if (isset($result['_scroll_id'])) {
             $result = $this->client->scroll([
@@ -76,7 +68,7 @@ class ClassifyCommand extends Command
                 'scroll_id' => $result['_scroll_id']
             ]);
 
-            $this->scroll($output, $result, $predictions);
+            $this->scroll($output, $result);
         }
     }
 }
