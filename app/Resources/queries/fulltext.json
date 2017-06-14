@@ -1,0 +1,20 @@
+{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "match": {
+                        "_all": "Bulova Mens Precisionist Collection Oversized 98B229-BLACK-One Size"
+                    }
+                }
+            ],
+            "must_not": [
+                {
+                    "term": {
+                        "shop_id": 2083
+                    }
+                }
+            ]
+        }
+    }
+}
