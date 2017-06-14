@@ -16,6 +16,7 @@ class ClassifyCommand extends Command
      */
     protected $client;
     protected $config = array();
+    protected $classifier;
 
     public function configure()
     {
@@ -36,6 +37,8 @@ class ClassifyCommand extends Command
 
         $result = $this->client->search([
             'index' => 'offer',
+            'size' => 1000,
+            'scroll' => '1m',
             'body' => [
                 'query' => [
                     'bool' => [
@@ -43,14 +46,37 @@ class ClassifyCommand extends Command
                             'exists' => ['field' => 'category_id']
                         ]
                     ]
-                ]
+                ],
             ]
         ]);
 
-        $classifier = new Classifier($this->client);
+        $this->classifier = new Classifier($this->client);
 
-        foreach ($result['hits']['hits'] as $offer) {
-            var_dump($classifier->predict($offer));
+        $this->scroll($output, $result, [
+            'positive' => 0,
+            'total' => 0,
+        ]);
+    }
+
+    private function scroll(OutputInterface $output, $result, array $predictions)
+    {
+        foreach ($result['hits']['hits'] as $i => $offer) {
+            if (true === $this->classifier->predict($offer['_source'])) {
+                $predictions['positive']++;
+            }
+
+            $predictions['total']++;
+        }
+
+        $output->writeln(round($predictions['positive'] / $predictions['total'] * 100) . '%');
+
+        if (isset($result['_scroll_id'])) {
+            $result = $this->client->scroll([
+                'scroll' => '1m',
+                'scroll_id' => $result['_scroll_id']
+            ]);
+
+            $this->scroll($output, $result, $predictions);
         }
     }
 }
