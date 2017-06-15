@@ -82,7 +82,7 @@ class ClassifyCommand extends Command
         $this->progressBar->finish();
     }
 
-    private function scroll(OutputInterface $output, $result, $count = 0)
+    private function scroll(OutputInterface $output, $result)
     {
         foreach ($result['hits']['hits'] as $i => $offer) {
             $this->classifier->predict($offer['_source']);
@@ -104,7 +104,7 @@ class ClassifyCommand extends Command
                 'scroll_id' => $result['_scroll_id']
             ]);
 
-            $this->scroll($output, $result, $count + count($result['hits']));
+            $this->scroll($output, $result);
         }
     }
 }
