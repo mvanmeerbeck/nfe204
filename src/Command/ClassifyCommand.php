@@ -62,8 +62,6 @@ class ClassifyCommand extends Command
             $this->classifier->predict($offer['_source']);
         }
 
-        print_r($this->classifier->getEvaluation());
-
         if (isset($result['_scroll_id'])) {
             $result = $this->client->scroll([
                 'scroll' => '1m',
