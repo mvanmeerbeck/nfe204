@@ -3,21 +3,25 @@
 namespace Nfe204\Classifier;
 
 use Elasticsearch\Client;
-use Nfe204\Evaluation;
 
 abstract class AbstractClassifier
 {
     protected $client;
-    protected $evaluation;
+    protected $actualLabels = [];
+    protected $predictedLabels = [];
 
-    public function __construct(Client $client, Evaluation $evaluation)
+    public function __construct(Client $client)
     {
         $this->client = $client;
-        $this->evaluation = $evaluation;
     }
 
-    public function getEvaluation()
+    public function getActualLabels()
     {
-        return $this->evaluation;
+        return $this->actualLabels;
+    }
+
+    public function getPredictedLabels()
+    {
+        return $this->predictedLabels;
     }
 }

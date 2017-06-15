@@ -5,7 +5,8 @@
         "symfony/console": "^3.3",
         "incenteev/composer-parameter-handler": "^2.1",
         "solarium/solarium": "^3.8",
-        "elasticsearch/elasticsearch": "^5.2"
+        "elasticsearch/elasticsearch": "^5.2",
+        "php-ai/php-ml": "^0.4.1"
     },
     "autoload": {
         "psr-4": {
