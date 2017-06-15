@@ -4,22 +4,43 @@ namespace Nfe204;
 
 class Evaluation
 {
+    const MICRO_AVERAGE = 1;
+    const MACRO_AVERAGE = 2;
+
     protected $confusionMatrix = [];
+    protected $classes = [];
 
     public function addPrediction($predictedClass, $realClass)
     {
-        if (!isset($this->confusionMatrix[$realClass])) {
-            $this->confusionMatrix[$realClass] = [];
+        if (!in_array($predictedClass, $this->classes)) {
+            $this->classes[] = $predictedClass;
         }
 
-        if (!isset($this->confusionMatrix[$realClass][$predictedClass])) {
-            $this->confusionMatrix[$realClass][$predictedClass] = 0;
+        if (!in_array($realClass, $this->classes)) {
+            $this->classes[] = $realClass;
         }
+
+        $this->updateMatrix();
 
         $this->confusionMatrix[$realClass][$predictedClass]++;
     }
 
-    public function getRecall($class)
+    private function updateMatrix()
+    {
+        foreach ($this->classes as $class) {
+            if (!array_key_exists($class, $this->confusionMatrix)) {
+                $this->confusionMatrix[$class] = [];
+            }
+
+            foreach ($this->classes as $class2) {
+                if (!array_key_exists($class2, $this->confusionMatrix[$class])) {
+                    $this->confusionMatrix[$class][$class2] = 0;
+                }
+            }
+        }
+    }
+
+    public function getRecall($class, $average)
     {
         $truePositive = 0;
         $falsePositive = 0;
@@ -37,7 +58,7 @@ class Evaluation
         return $truePositive / ($truePositive + $falsePositive);
     }
 
-    public function getPrecision($class)
+    public function getPrecision($class, $average)
     {
         $truePositive = 0;
         $trueNegative = 0;
