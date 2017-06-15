@@ -20,12 +20,12 @@ class Evaluation
             $this->classes[] = $realClass;
         }
 
-        $this->updateMatrix();
+        $this->fillMatrix();
 
         $this->confusionMatrix[$realClass][$predictedClass]++;
     }
 
-    private function updateMatrix()
+    private function fillMatrix()
     {
         foreach ($this->classes as $class) {
             if (!array_key_exists($class, $this->confusionMatrix)) {
