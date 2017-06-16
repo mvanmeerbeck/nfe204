@@ -6,7 +6,6 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Nfe204\Classifier\AbstractClassifier;
 use Nfe204\Classifier\Classifier;
-use Nfe204\Classifier\ClassifierFactory;
 use Nfe204\Classifier\MoreLikeThisClassifier;
 use Phpml\Metric\Accuracy;
 use Phpml\Metric\ClassificationReport;
@@ -33,12 +32,12 @@ class ClassifyCommand extends Command
      */
     protected $progressBar;
 
-    const SIZE = 100;
-
     public function configure()
     {
         $this
             ->setName('classify')
+            ->addOption('batch', 'b', InputOption::VALUE_OPTIONAL, null, 10)
+            ->addOption('size', 's', InputOption::VALUE_OPTIONAL, null, 100)
             ->addOption('classifier', 'c', InputOption::VALUE_OPTIONAL, null, 'ft')
             ->addOption('log', 'l', InputOption::VALUE_OPTIONAL, null, 'var/logs');
     }
@@ -77,56 +76,47 @@ class ClassifyCommand extends Command
                 break;
         }
 
-        $this->scroll($output);
+        $this->progressBar->start($input->getOption('batch') * $input->getOption('size'));
 
-        $this->progressBar->finish();
-    }
-
-    private function scroll(OutputInterface $output, $scrollId = null)
-    {
-        if (is_null($scrollId)) {
-            $result = $this->client->search([
-                'index' => 'offer',
-                'size' => self::SIZE,
-                'scroll' => '1m',
-                'body' => [
-                    'query' => [
-                        'bool' => [
-                            'filter' => [
-                                'exists' => ['field' => 'category_id']
-                            ]
+        $result = $this->client->search([
+            'index' => 'offer',
+            'size' => $input->getOption('size'),
+            'scroll' => '1m',
+            'body' => [
+                'query' => [
+                    'bool' => [
+                        'filter' => [
+                            'exists' => ['field' => 'category_id'],
                         ]
-                    ],
-                ]
-            ]);
+                    ]
+                ],
+            ]
+        ]);
 
-            $this->progressBar->start($result['hits']['total']);
-        } else {
+        for ($i = 0; $i < $input->getOption('batch'); $i++) {
+            foreach ($result['hits']['hits'] as $offer) {
+                $this->classifier->predict($offer['_source']);
+
+                $this->progressBar->advance();
+            }
+
+            $report = new ClassificationReport($this->classifier->getActualLabels(), $this->classifier->getPredictedLabels());
+
+            $average = $report->getAverage();
+
+            $accuracy = Accuracy::score($this->classifier->getActualLabels(), $this->classifier->getPredictedLabels());
+
+            $this->progressBar->setMessage(round($average['precision'], 4), 'precision');
+            $this->progressBar->setMessage(round($average['recall'], 4), 'recall');
+            $this->progressBar->setMessage(round($average['f1score'], 4), 'fscore');
+            $this->progressBar->setMessage(round($accuracy, 4), 'accuracy');
+
             $result = $this->client->scroll([
                 'scroll' => '1m',
-                'scroll_id' => $scrollId
+                'scroll_id' => $result['_scroll_id']
             ]);
         }
 
-        foreach ($result['hits']['hits'] as $i => $offer) {
-            $this->classifier->predict($offer['_source']);
-
-            $this->progressBar->advance();
-        }
-
-        $report = new ClassificationReport($this->classifier->getActualLabels(), $this->classifier->getPredictedLabels());
-
-        $average = $report->getAverage();
-
-        $accuracy = Accuracy::score($this->classifier->getActualLabels(), $this->classifier->getPredictedLabels());
-
-        $this->progressBar->setMessage(round($average['precision'], 4), 'precision');
-        $this->progressBar->setMessage(round($average['recall'], 4), 'recall');
-        $this->progressBar->setMessage(round($average['f1score'], 4), 'fscore');
-        $this->progressBar->setMessage(round($accuracy, 4), 'accuracy');
-
-        if (isset($result['_scroll_id'])) {
-            $this->scroll($output, $result['_scroll_id']);
-        }
+        $this->progressBar->finish();
     }
 }
