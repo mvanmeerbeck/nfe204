@@ -1,0 +1,13 @@
+{
+    "query": {
+        "fuzzy": {
+            "offer_category_name": {
+                "value": "Computers",
+                "boost": 1.0,
+                "fuzziness": 5,
+                "prefix_length": 0,
+                "max_expansions": 100
+            }
+        }
+    }
+}

@@ -2,7 +2,7 @@
 
 namespace Nfe204\Classifier;
 
-class Classifier extends AbstractClassifier implements ClassifierInterface
+class FuzzyClassifier extends AbstractClassifier implements ClassifierInterface
 {
     public function predict(array $offer)
     {
@@ -13,8 +13,11 @@ class Classifier extends AbstractClassifier implements ClassifierInterface
                 'query' => [
                     'bool' => [
                         'must' => [
-                            'match' => [
-                                'offer_name' => $offer['offer_name']
+                            'fuzzy' => [
+                                'offer_category_name' => [
+                                    'value' => $offer['offer_category_name'],
+                                    'fuzziness' => 5
+                                ],
                             ]
                         ],
                         'must_not' => [

@@ -1,7 +1,10 @@
 {
     "query": {
-        "bool": {
-            "must": [
+        "dis_max": {
+            "queries": [
+                {
+                    "match": {"offer_name": "Pro Armor Skid Plate Rear - P081033"}
+                },
                 {
                     "more_like_this": {
                         "fields": [
@@ -11,9 +14,6 @@
                         "min_term_freq": 1
                     }
                 }
-            ],
-            "must_not": [
-                {"term": {"shop_id": 2137}}
             ]
         }
     }

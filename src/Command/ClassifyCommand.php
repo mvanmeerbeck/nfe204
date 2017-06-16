@@ -6,6 +6,7 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Nfe204\Classifier\AbstractClassifier;
 use Nfe204\Classifier\Classifier;
+use Nfe204\Classifier\FuzzyClassifier;
 use Nfe204\Classifier\MoreLikeThisClassifier;
 use Phpml\Metric\Accuracy;
 use Phpml\Metric\ClassificationReport;
@@ -71,6 +72,9 @@ class ClassifyCommand extends Command
             case 'mlt':
                 $this->classifier = new MoreLikeThisClassifier($this->client, $input->getOption('log'));
                 break;
+            case 'fuzzy':
+                $this->classifier = new FuzzyClassifier($this->client, $input->getOption('log'));
+                break;
             default:
                 throw new \Exception('Classifier not found');
                 break;
@@ -86,7 +90,8 @@ class ClassifyCommand extends Command
                 'query' => [
                     'bool' => [
                         'filter' => [
-                            'exists' => ['field' => 'category_id'],
+                            ['exists' => ['field' => 'category_id']],
+                            ['exists' => ['field' => 'offer_category_name']],
                         ]
                     ]
                 ],
