@@ -50,6 +50,8 @@ class MetricCommand extends Command
 
         if ($input->getOption('matrix')) {
             $confusionMatrix = ConfusionMatrix::compute($actualLabels, $predictedLabels);
+
+            print_r($confusionMatrix);
         }
 
         if ($input->getOption('report')) {
