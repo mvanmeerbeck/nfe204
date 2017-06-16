@@ -1,0 +1,20 @@
+{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "more_like_this": {
+                        "fields": [
+                            "offer_name"
+                        ],
+                        "like": [{"_id": "161410350"}],
+                        "min_term_freq": 1
+                    }
+                }
+            ],
+            "must_not": [
+                {"term": { "shop_id": 2137}}
+            ]
+        }
+    }
+}

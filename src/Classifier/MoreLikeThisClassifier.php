@@ -2,7 +2,7 @@
 
 namespace Nfe204\Classifier;
 
-class Classifier extends AbstractClassifier implements ClassifierInterface
+class MoreLikeThisClassifier extends AbstractClassifier implements ClassifierInterface
 {
     public function predict(array $offer)
     {
@@ -13,8 +13,10 @@ class Classifier extends AbstractClassifier implements ClassifierInterface
                 'query' => [
                     'bool' => [
                         'must' => [
-                            'match' => [
-                                'offer_name' => $offer['offer_name']
+                            'more_like_this' => [
+                                'fields' => ['offer_name'],
+                                'like' => ['_id' => $offer['offer_id']],
+                                'min_term_freq' => 1,
                             ]
                         ],
                         'must_not' => [
@@ -25,6 +27,7 @@ class Classifier extends AbstractClassifier implements ClassifierInterface
                         ]
                     ]
                 ]
+
             ]
         ]);
 

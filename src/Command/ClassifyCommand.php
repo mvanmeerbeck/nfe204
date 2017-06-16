@@ -6,11 +6,14 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Nfe204\Classifier\AbstractClassifier;
 use Nfe204\Classifier\Classifier;
+use Nfe204\Classifier\ClassifierFactory;
+use Nfe204\Classifier\MoreLikeThisClassifier;
 use Phpml\Metric\Accuracy;
 use Phpml\Metric\ClassificationReport;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ClassifyCommand extends Command
@@ -35,7 +38,9 @@ class ClassifyCommand extends Command
     public function configure()
     {
         $this
-            ->setName('classify');
+            ->setName('classify')
+            ->addOption('classifier', 'c', InputOption::VALUE_OPTIONAL, null, 'ft')
+            ->addOption('log', 'l', InputOption::VALUE_OPTIONAL, null, 'var/logs');
     }
 
     public function setConfig(array $config)
@@ -60,7 +65,17 @@ class ClassifyCommand extends Command
         $this->progressBar->setMessage(0, 'recall');
         $this->progressBar->setMessage(0, 'fscore');
 
-        $this->classifier = new Classifier($this->client, 'var/logs');
+        switch ($input->getOption('classifier')) {
+            case 'ft':
+                $this->classifier = new Classifier($this->client, $input->getOption('log'));
+                break;
+            case 'mlt':
+                $this->classifier = new MoreLikeThisClassifier($this->client, $input->getOption('log'));
+                break;
+            default:
+                throw new \Exception('Classifier not found');
+                break;
+        }
 
         $this->scroll($output);
 
