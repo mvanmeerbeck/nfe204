@@ -46,7 +46,7 @@ class MetricCommand extends Command
 
         if ($input->getOption('accuracy')) {
             $accuracy = Accuracy::score($actualLabels, $predictedLabels);
-            $output->writeln("accuracy: $accuracy");
+            $output->writeln("accuracy=$accuracy");
         }
 
         if ($input->getOption('matrix')) {
@@ -61,7 +61,7 @@ class MetricCommand extends Command
             $average = $report->getAverage();
 
             foreach ($average as $metric => $value) {
-                $output->writeln(sprintf("%s: %1.04f", $metric, $value));
+                $output->writeln("$metric=" . round($value, 4));
             }
         }
     }
