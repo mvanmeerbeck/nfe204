@@ -30,16 +30,17 @@ class MetricCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $log = new \SplFileObject($input->getArgument('log'), 'r');
-        $log->setFlags(\SplFileObject::READ_CSV);
-
         $actualLabels = [];
         $predictedLabels = [];
 
-        foreach ($log as $data) {
-            if (2 === count($data)) {
-                $actualLabels[] = strval($data[0]);
-                $predictedLabels[] = strval($data[1]);
+        $handle = fopen($input->getArgument('log'), 'r');
+
+        while (!feof($handle)) {
+            $data = fgetcsv($handle);
+
+            if ($data) {
+                $actualLabels[] = $data[0];
+                $predictedLabels[] = $data[1];
             }
         }
 
@@ -51,7 +52,7 @@ class MetricCommand extends Command
         if ($input->getOption('matrix')) {
             $confusionMatrix = ConfusionMatrix::compute($actualLabels, $predictedLabels);
 
-            print_r($confusionMatrix);
+            print_r(json_encode($confusionMatrix));
         }
 
         if ($input->getOption('report')) {
@@ -60,7 +61,7 @@ class MetricCommand extends Command
             $average = $report->getAverage();
 
             foreach ($average as $metric => $value) {
-                $output->writeln("$metric: $value");
+                $output->writeln(sprintf("%s: %1.04f", $metric, $value));
             }
         }
     }

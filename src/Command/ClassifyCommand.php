@@ -6,6 +6,7 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Nfe204\Classifier\AbstractClassifier;
 use Nfe204\Classifier\Classifier;
+use Phpml\Metric\Accuracy;
 use Phpml\Metric\ClassificationReport;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -50,10 +51,11 @@ class ClassifyCommand extends Command
 
         $this->progressBar = new ProgressBar($output);
 
-        $this->progressBar->setRedrawFrequency(1);
+        $this->progressBar->setRedrawFrequency(10);
         $this->progressBar->setOverwrite(true);
-        $this->progressBar->setFormatDefinition('custom', ' %current%/%max% precision=%precision% recall=%recall% f1score=%fscore%');
+        $this->progressBar->setFormatDefinition('custom', ' %current%/%max% accuracy=%accuracy% precision=%precision% recall=%recall% f1score=%fscore%');
         $this->progressBar->setFormat('custom');
+        $this->progressBar->setMessage(0, 'accuracy');
         $this->progressBar->setMessage(0, 'precision');
         $this->progressBar->setMessage(0, 'recall');
         $this->progressBar->setMessage(0, 'fscore');
@@ -94,16 +96,19 @@ class ClassifyCommand extends Command
         foreach ($result['hits']['hits'] as $i => $offer) {
             $this->classifier->predict($offer['_source']);
 
-            $report = new ClassificationReport($this->classifier->getActualLabels(), $this->classifier->getPredictedLabels());
-
-            $average = $report->getAverage();
-
-            $this->progressBar->setMessage(round($average['precision'], 2), 'precision');
-            $this->progressBar->setMessage(round($average['recall'], 2), 'recall');
-            $this->progressBar->setMessage(round($average['f1score'], 2), 'fscore');
-
             $this->progressBar->advance();
         }
+
+        $report = new ClassificationReport($this->classifier->getActualLabels(), $this->classifier->getPredictedLabels());
+
+        $average = $report->getAverage();
+
+        $accuracy = Accuracy::score($this->classifier->getActualLabels(), $this->classifier->getPredictedLabels());
+
+        $this->progressBar->setMessage(round($average['precision'], 4), 'precision');
+        $this->progressBar->setMessage(round($average['recall'], 4), 'recall');
+        $this->progressBar->setMessage(round($average['f1score'], 4), 'fscore');
+        $this->progressBar->setMessage(round($accuracy, 4), 'accuracy');
 
         if (isset($result['_scroll_id'])) {
             $this->scroll($output, $result['_scroll_id']);
