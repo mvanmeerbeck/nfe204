@@ -1,5 +1,5 @@
 /vendor/
 .idea/
 app/config/parameters.yml
-data/offers.ndjson
-data/products.ndjson
+var/data/*
+var/logs/*

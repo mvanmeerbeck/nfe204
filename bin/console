@@ -13,6 +13,7 @@ $commands = [
     new \Nfe204\Command\SolrExportCommand(),
     new \Nfe204\Command\EsImportCommand(),
     new \Nfe204\Command\ClassifyCommand(),
+    new \Nfe204\Command\MetricCommand(),
 ];
 
 foreach ($commands as $command) {

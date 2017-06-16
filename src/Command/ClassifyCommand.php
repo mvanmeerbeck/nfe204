@@ -29,7 +29,7 @@ class ClassifyCommand extends Command
      */
     protected $progressBar;
 
-    const SIZE = 10;
+    const SIZE = 100;
 
     public function configure()
     {
@@ -48,42 +48,49 @@ class ClassifyCommand extends Command
             ->setHosts($this->config['elasticsearch'])
             ->build();
 
-        $result = $this->client->search([
-            'index' => 'offer',
-            'size' => self::SIZE,
-            'scroll' => '1m',
-            'body' => [
-                'query' => [
-                    'bool' => [
-                        'filter' => [
-                            'exists' => ['field' => 'category_id']
-                        ]
-                    ]
-                ],
-            ]
-        ]);
-
         $this->progressBar = new ProgressBar($output);
 
-        $this->progressBar->setRedrawFrequency(10);
+        $this->progressBar->setRedrawFrequency(1);
         $this->progressBar->setOverwrite(true);
-        $this->progressBar->setFormatDefinition('custom', ' %current%/%max% -- precision=%precision% recall=%recall% f1score=%fscore%');
+        $this->progressBar->setFormatDefinition('custom', ' %current%/%max% precision=%precision% recall=%recall% f1score=%fscore%');
         $this->progressBar->setFormat('custom');
         $this->progressBar->setMessage(0, 'precision');
         $this->progressBar->setMessage(0, 'recall');
         $this->progressBar->setMessage(0, 'fscore');
 
-        $this->progressBar->start($result['hits']['total']);
+        $this->classifier = new Classifier($this->client, 'var/logs');
 
-        $this->classifier = new Classifier($this->client);
-
-        $this->scroll($output, $result);
+        $this->scroll($output);
 
         $this->progressBar->finish();
     }
 
-    private function scroll(OutputInterface $output, $result)
+    private function scroll(OutputInterface $output, $scrollId = null)
     {
+        if (is_null($scrollId)) {
+            $result = $this->client->search([
+                'index' => 'offer',
+                'size' => self::SIZE,
+                'scroll' => '1m',
+                'body' => [
+                    'query' => [
+                        'bool' => [
+                            'filter' => [
+                                'exists' => ['field' => 'category_id']
+                            ]
+                        ]
+                    ],
+                ]
+            ]);
+
+            $this->progressBar->start($result['hits']['total']);
+        } else {
+            $result = $this->client->scroll([
+                'scroll' => '1m',
+                'scroll_id' => $scrollId
+            ]);
+        }
+
         foreach ($result['hits']['hits'] as $i => $offer) {
             $this->classifier->predict($offer['_source']);
 
@@ -99,12 +106,7 @@ class ClassifyCommand extends Command
         }
 
         if (isset($result['_scroll_id'])) {
-            $result = $this->client->scroll([
-                'scroll' => '1m',
-                'scroll_id' => $result['_scroll_id']
-            ]);
-
-            $this->scroll($output, $result);
+            $this->scroll($output, $result['_scroll_id']);
         }
     }
 }
