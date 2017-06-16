@@ -52,6 +52,7 @@ class SolrExportCommand extends Command
                     'brand_id', 'brand_name',
                     'shop_id', 'shop_name',
                     'category_hierarchy_ids', 'category_hierarchy_names', 'category_id', 'category_name',
+                    'tag_keywords',
                     'score_popularity'
                 ])
                 ->addFilterQuery([
@@ -67,7 +68,7 @@ class SolrExportCommand extends Command
             $query
                 ->setFields([
                     'id',
-                    'product_id', 'product_name', 'product_price_min', 'product_price_max',
+                    'product_id', 'product_name', 'product_price_min', 'product_price_max', 'product_codes',
                     'brand_id', 'brand_name',
                     'category_hierarchy_ids', 'category_hierarchy_names', 'category_id', 'category_name',
                     'score_popularity'
