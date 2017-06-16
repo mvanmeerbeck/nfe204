@@ -55,7 +55,7 @@ class ClassifyCommand extends Command
 
         $this->progressBar = new ProgressBar($output);
 
-        $this->progressBar->setRedrawFrequency($input->getOption('size'));
+        $this->progressBar->setRedrawFrequency(10);
         $this->progressBar->setOverwrite(true);
         $this->progressBar->setFormatDefinition('custom', ' %current%/%max% accuracy=%accuracy% precision=%precision% recall=%recall% f1score=%fscore%');
         $this->progressBar->setFormat('custom');
