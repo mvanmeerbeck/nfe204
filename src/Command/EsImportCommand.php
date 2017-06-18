@@ -36,18 +36,14 @@ class EsImportCommand extends Command
             'index' => $input->getArgument('type')
         ];
 
-        if ($this->client->indices()->exists($index)
-        ) {
-            $this->client->indices()->delete($index);
+        if (!$this->client->indices()->exists($index)) {
+//            $index['body']['mappings'] = json_decode(file_get_contents(sprintf(
+//                '%s/../../app/Resources/mappings/document.json',
+//                __DIR__
+//            )));
+
+            $this->client->indices()->create($index);
         }
-
-        $index['body']['mappings'] = json_decode(file_get_contents(sprintf(
-            '%s/../../app/Resources/mappings/%s.json',
-            __DIR__,
-            $input->getArgument('type')
-        )));
-
-        $this->client->indices()->create($index);
 
         $handle = fopen($input->getArgument('file'), 'r');
 
@@ -59,8 +55,8 @@ class EsImportCommand extends Command
 
             $documents['body'][] = [
                 'index' => [
-                    '_index' => $input->getArgument('type'),
-                    '_type' => 'document',
+                    '_index' => 'document',
+                    '_type' => $input->getArgument('type'),
                     '_id' => $document[$input->getArgument('type') . '_id']
                 ]
             ];
@@ -69,26 +65,26 @@ class EsImportCommand extends Command
 
             $i++;
 
-            if (0 === $i % 10000) {
-                $this->bulk($documents);
+            if (0 === $i % 50000) {
+                $this->bulk($output, $documents);
 
                 $documents = ['body' => []];
                 $output->writeln($i . ' documents inserted');
             }
         }
 
-        $this->bulk($documents);
+        $this->bulk($output, $documents);
         $output->writeln($i . ' documents inserted');
     }
 
-    private function bulk(array $documents)
+    private function bulk(OutputInterface $output, array $documents)
     {
         $result = $this->client->bulk($documents);
 
         if ($result['errors']) {
             foreach ($result['items'] as $item) {
                 if (isset($item['index']['error'])) {
-                    throw new \Exception(sprintf('Document %d failed to be inserted: %s', $item['index']['_id'], $item['index']['error']['reason']));
+                    $output->writeln(sprintf('Document %d failed to be inserted: %s', $item['index']['_id'], $item['index']['error']['reason']));
                 }
             }
         }
