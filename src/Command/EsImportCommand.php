@@ -2,6 +2,7 @@
 
 namespace Nfe204\Command;
 
+use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,6 +11,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EsImportCommand extends Command
 {
+    /**
+     * @var Client $client
+     */
     protected $client;
     protected $config = array();
 
