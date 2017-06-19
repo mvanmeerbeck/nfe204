@@ -37,10 +37,10 @@ class EsImportCommand extends Command
         ];
 
         if (!$this->client->indices()->exists($index)) {
-//            $index['body']['mappings'] = json_decode(file_get_contents(sprintf(
-//                '%s/../../app/Resources/mappings/document.json',
-//                __DIR__
-//            )));
+            $index['body']['mappings'] = json_decode(file_get_contents(sprintf(
+                '%s/../../app/Resources/mappings/document.json',
+                __DIR__
+            )));
 
             $this->client->indices()->create($index);
         }
