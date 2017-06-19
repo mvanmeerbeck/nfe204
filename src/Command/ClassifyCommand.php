@@ -8,6 +8,7 @@ use Nfe204\Classifier\AbstractClassifier;
 use Nfe204\Classifier\Classifier;
 use Nfe204\Classifier\FuzzyClassifier;
 use Nfe204\Classifier\MoreLikeThisClassifier;
+use Nfe204\Classifier\ProductClassifier;
 use Phpml\Metric\Accuracy;
 use Phpml\Metric\ClassificationReport;
 use Symfony\Component\Console\Command\Command;
@@ -75,6 +76,9 @@ class ClassifyCommand extends Command
             case 'fuzzy':
                 $this->classifier = new FuzzyClassifier($this->client, $input->getOption('log'));
                 break;
+            case 'product':
+                $this->classifier = new ProductClassifier($this->client, $input->getOption('log'));
+                break;
             default:
                 throw new \Exception('Classifier not found');
                 break;
@@ -83,7 +87,8 @@ class ClassifyCommand extends Command
         $this->progressBar->start($input->getOption('batch') * $input->getOption('size'));
 
         $result = $this->client->search([
-            'index' => 'offer',
+            'index' => 'document',
+            'type' => 'offer',
             'size' => $input->getOption('size'),
             'scroll' => '1m',
             'body' => [

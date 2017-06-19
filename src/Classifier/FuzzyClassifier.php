@@ -7,7 +7,8 @@ class FuzzyClassifier extends AbstractClassifier implements ClassifierInterface
     public function predict(array $offer)
     {
         $result = $this->client->search([
-            'index' => 'offer',
+            'index' => 'document',
+            'type' => 'offer',
             'size' => 1,
             'body' => [
                 'query' => [
