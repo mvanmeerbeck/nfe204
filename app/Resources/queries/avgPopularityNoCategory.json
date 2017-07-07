@@ -1,0 +1,21 @@
+{
+    "query": {
+        "bool": {
+            "must_not": {
+                "exists": {
+                    "field": "category_id"
+                }
+            },
+            "must": {
+                "range": {
+                    "score_popularity": {
+                        "gt": 0
+                    }
+                }
+            }
+        }
+    },
+    "aggs": {
+        "avg_grade": {"avg": {"field": "score_popularity"}}
+    }
+}

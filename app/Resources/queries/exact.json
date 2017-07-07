@@ -2,11 +2,8 @@
     "query": {
         "bool": {
             "must": {
-                "fuzzy": {
-                    "offer_name": {
-                        "value": "Bulova Mens Precisionist Collection Oversized 98B229-BLACK-One Size",
-                        "fuzziness": 2
-                    }
+                "term": {
+                    "offer_name.keyword": "Bulova Mens Precisionist Collection Oversized 98B229-BLACK-One Size"
                 }
             },
             "must_not": {

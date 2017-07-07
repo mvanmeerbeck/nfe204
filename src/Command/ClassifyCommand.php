@@ -6,6 +6,7 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Nfe204\Classifier\AbstractClassifier;
 use Nfe204\Classifier\Classifier;
+use Nfe204\Classifier\ExactClassifier;
 use Nfe204\Classifier\FuzzyClassifier;
 use Nfe204\Classifier\MoreLikeThisClassifier;
 use Nfe204\Classifier\ProductClassifier;
@@ -67,6 +68,9 @@ class ClassifyCommand extends Command
         $this->progressBar->setMessage(0, 'fscore');
 
         switch ($input->getOption('classifier')) {
+            case 'exact':
+                $this->classifier = new ExactClassifier($this->client, $input->getOption('log'));
+                break;
             case 'ft':
                 $this->classifier = new Classifier($this->client, $input->getOption('log'));
                 break;

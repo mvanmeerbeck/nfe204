@@ -1,0 +1,21 @@
+{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "exists": {"field": "product_id"}
+                },
+                {
+                    "range": {
+                        "score_popularity": {
+                            "gt": 0
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "aggs": {
+        "avg_grade": {"avg": {"field": "score_popularity"}}
+    }
+}
