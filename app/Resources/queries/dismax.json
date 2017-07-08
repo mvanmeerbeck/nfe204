@@ -3,14 +3,20 @@
         "dis_max": {
             "queries": [
                 {
-                    "match": {"offer_name": "Pro Armor Skid Plate Rear - P081033"}
+                    "term": {"offer_name.keyword": "Advance Physician Formulas, Inc., Mangosteen, 500 mg, 60 Capsules"}
+                },
+                {
+                    "term": {"offer_category_name.keyword": "Health & Beauty > Health Care > Fitness & Nutrition > Vitamins & Supplements"}
+                },
+                {
+                    "match": {"offer__name": "Advance Physician Formulas, Inc., Mangosteen, 500 mg, 60 Capsules"}
                 },
                 {
                     "more_like_this": {
                         "fields": [
                             "offer_name"
                         ],
-                        "like": [{"_id": "161410350"}],
+                        "like": [{"_id": "155504878"}],
                         "min_term_freq": 1
                     }
                 }

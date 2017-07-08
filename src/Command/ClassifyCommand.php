@@ -6,6 +6,7 @@ use Elasticsearch\Client;
 use Elasticsearch\ClientBuilder;
 use Nfe204\Classifier\AbstractClassifier;
 use Nfe204\Classifier\Classifier;
+use Nfe204\Classifier\DisMaxClassifier;
 use Nfe204\Classifier\ExactClassifier;
 use Nfe204\Classifier\FuzzyClassifier;
 use Nfe204\Classifier\MoreLikeThisClassifier;
@@ -68,6 +69,9 @@ class ClassifyCommand extends Command
         $this->progressBar->setMessage(0, 'fscore');
 
         switch ($input->getOption('classifier')) {
+            case 'dismax':
+                $this->classifier = new DisMaxClassifier($this->client, $input->getOption('log'));
+                break;
             case 'exact':
                 $this->classifier = new ExactClassifier($this->client, $input->getOption('log'));
                 break;
@@ -94,7 +98,7 @@ class ClassifyCommand extends Command
             'index' => 'document',
             'type' => 'offer',
             'size' => $input->getOption('size'),
-            'scroll' => '1m',
+            'scroll' => '20m',
             'body' => [
                 'query' => [
                     'bool' => [
@@ -126,7 +130,7 @@ class ClassifyCommand extends Command
             $this->progressBar->setMessage(round($accuracy, 4), 'accuracy');
 
             $result = $this->client->scroll([
-                'scroll' => '1m',
+                'scroll' => '20m',
                 'scroll_id' => $result['_scroll_id']
             ]);
         }

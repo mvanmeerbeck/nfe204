@@ -15,7 +15,7 @@ class Classifier extends AbstractClassifier implements ClassifierInterface
                     'bool' => [
                         'must' => [
                             'match' => [
-                                'offer_name' => $offer['offer_name']
+                                'offer_category_name' => $offer['offer_category_name']
                             ]
                         ],
                         'must_not' => [

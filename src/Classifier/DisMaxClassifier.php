@@ -2,7 +2,7 @@
 
 namespace Nfe204\Classifier;
 
-class MoreLikeThisClassifier extends AbstractClassifier implements ClassifierInterface
+class DisMaxClassifier extends AbstractClassifier implements ClassifierInterface
 {
     public function predict(array $offer)
     {
@@ -12,23 +12,41 @@ class MoreLikeThisClassifier extends AbstractClassifier implements ClassifierInt
             'size' => 1,
             'body' => [
                 'query' => [
-                    'bool' => [
-                        'must' => [
-                            'more_like_this' => [
-                                'fields' => ['offer_name'],
-                                'like' => ['_id' => $offer['offer_id']],
-                                'min_term_freq' => 1,
+                    'dis_max' => [
+                        "queries" => [
+                            [
+                                'bool' => [
+                                    'must' => [
+                                        'term' => [
+                                            'offer_name.keyword' => $offer['offer_name']
+                                        ]
+                                    ],
+                                    'must_not' => [
+                                        'term' => ['shop_id' => $offer['shop_id']]
+                                    ],
+                                    'filter' => [
+                                        'exists' => ['field' => 'category_id']
+                                    ]
+                                ]
+                            ],
+                            [
+                                'bool' => [
+                                    'must' => [
+                                        'match' => [
+                                            'offer_category_name' => $offer['offer_category_name']
+                                        ]
+                                    ],
+                                    'must_not' => [
+                                        'term' => ['shop_id' => $offer['shop_id']]
+                                    ],
+                                    'filter' => [
+                                        'exists' => ['field' => 'category_id']
+                                    ]
+                                ]
                             ]
-                        ],
-                        'must_not' => [
-                            'term' => ['shop_id' => $offer['shop_id']]
-                        ],
-                        'filter' => [
-                            'exists' => ['field' => 'category_id']
                         ]
                     ]
                 ]
-
             ]
         ]);
 
