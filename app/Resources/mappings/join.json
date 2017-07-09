@@ -1,0 +1,35 @@
+{
+    "join": {
+        "mappings": {
+            "product": {
+                "properties": {
+                    "product_name": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    }
+                }
+            },
+            "offer": {
+                "_parent": {
+                    "type": "product"
+                },
+                "properties": {
+                    "offer_name": {
+                        "type": "text",
+                        "fields": {
+                            "keyword": {
+                                "type": "keyword",
+                                "ignore_above": 256
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
