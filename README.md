@@ -1,14 +1,14 @@
 # nfe204 - Catégorisation d'offres du site Shopbot
 
-## Installation
+## Installation
 
 ```composer install```
 
-## Configuration
+## Configuration
 
 Les paramètres sont situés dans le dossier app/config
 
-## Utilisation
+## Utilisation
 
 La console est située dans le dossier bin, elle permet de lister toutes les commandes disponibles:
 
@@ -46,4 +46,4 @@ Cette commande permet de lire un fichier de log pour évaluation les performance
 
 Exemple:
 
-```bin/console metric var/logs/classification.log
+```bin/console metric -r var/logs/classification.log```
