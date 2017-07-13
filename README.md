@@ -33,6 +33,7 @@ Exemple:
 ###### Classification
 
 Classifie les offres en utilisant le classificateur spécifié. Le log des résultats est enregistré dans var/logs.
+
 ```bin/console classify --help```
 
 Exemple:
@@ -42,6 +43,7 @@ Exemple:
 ###### Evaluation
 
 Cette commande permet de lire un fichier de log pour évaluation les performances du classificateur.
+
 ```bin/console metric --help```
 
 Exemple:
